@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>ON.OFF</title>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" type="image/ico" href="images/favicon.png" />
+
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <script src="./js/lib/three.js/three.js"></script>
+        <script src="./js/lib/inflate.min.js"></script>
+        <script src="./js/lib/three.js/FBXLoader.js"></script>
+
+        <script src="./js/letterboxedcanvas.class.js"></script>
+        <script src="./js/audio.class.js"></script>
+        <script src="./js/context.class.js"></script>
+        <script src="./js/world.class.js"></script>
+        <script src="./js/gameclient.class.js"></script>
+
+        <script>
+const supportsES6 = function() {
+    try {
+        new Function('(a = 0) => a');
+        return true;
+    } catch (err) {
+        return false;
+    }
+}();
+window.addEventListener('load', function() {
+    if (!supportsES6) {
+        const body = document.getElementsByTagName('body')[0]
+        body.innerHTML = 'This game requires a browser with support for Javascript ES6 to run - sorry';
+    } else {
+        new GameClient();
+    }
+});
+        </script>
+        <style>
+body {
+    background-color:black;
+    color:white;
+    font-family:"Trebuchet MS", Helvetica, sans-serif;
+    font-size:130%;
+    margin:0;
+    overflow:hidden;
+              user-select:none;
+          -ms-user-select:none;
+         -moz-user-select:none;
+       -khtml-user-select:none;
+      -webkit-user-select:none;
+    -webkit-touch-callout:none;
+}
+
+canvas {
+    position:absolute;
+}
+
+#effects {
+    left:0;
+    position:absolute;
+    top:0;
+    visibility:hidden;
+}
+
+#textures {
+    left:-1px;
+    position:absolute;
+    top:-1px;
+}
+
+#textures img {
+    height:0;
+    width:0;
+}
+
+#show-credits {
+    bottom:20px;
+    font-size:150%;
+    left:20px;
+    position:absolute;
+}
+
+a {
+    color:#900;
+    text-decoration:none;
+}
+
+#show-credits a {
+    color:white;
+}
+
+#credits {
+    background:rgba(80, 0, 0, 0.5);
+    height:100%;
+    position:absolute;
+    text-align:center;
+    width:100%;
+    visibility:hidden;
+}
+
+#sound-credits {
+    left:20px;
+    position:absolute;
+    text-align:left;
+}
+
+#model-credits {
+    position:absolute;
+    text-align:right;
+    right:20px;
+}
+        </style>
+    </head>
+    <body>
+        <canvas></canvas>
+
+        <div id="effects">
+            <audio src="./sounds/sound__creaking_door.mp3" id="sound__creaking_door"></audio>
+            <audio src="./sounds/sound__creaking_floor.mp3" id="sound__creaking_floor"></audio>
+            <audio src="./sounds/sound__monster.mp3" id="sound__monster"></audio>
+            <audio src="./sounds/sound__rain.wav" id="sound__rain"></audio>
+            <audio src="./sounds/sound__risset.mp3" id="sound__risset"></audio>
+            <audio src="./sounds/sound__scrape.mp3" id="sound__scrape"></audio>
+            <audio src="./sounds/sound__switch.mp3" id="sound__switch"></audio>
+            <audio src="./sounds/sound__thunder_1.mp3" id="sound__thunder_1"></audio>
+            <audio src="./sounds/sound__thunder_2.mp3" id="sound__thunder_2"></audio>
+            <audio src="./sounds/sound__scare.mp3" id="sound__scare"></audio>
+        </div>
+
+        <div id="textures">
+            <img src="models/wall.png" width="1" height="1" alt="" />
+            <img src="models/wall_normal.png" width="1" height="1" alt="" />
+            <img src="models/bloody_wall.png" width="1" height="1" alt="" />
+            <img src="models/bloodied_wall.png" width="1" height="1" alt="" />
+        </div>
+
+        <div id="credits">
+            <h1>ON.OFF</h1>
+            <h3>Developed by <a href="https://donitz.itch.io/">Donitz</a> - Powered by <a href="https://threejs.org/">Three.js</a></h3>
+
+            <div id="sound-credits">
+                <h3>Sounds effects from <a href="https://freesound.org/">freesound.org</a></h3>
+                <a href="https://freesound.org/people/apolloaiello/sounds/328156/">"Floor Squeak"</a> by apolloaiello licensed under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>
+                <br />
+                <a href="https://freesound.org/people/Isaac200000/sounds/336151/">"GhastlyBoom.ogg"</a> by Isaac200000 licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>
+                <br />
+                <a href="https://freesound.org/people/DRFX/sounds/350765/">"Scary >> Jump_Scare_1"</a> by DRFX licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>, clipped
+                <br />
+                <a href="https://freesound.org/people/PhilllChabbb/sounds/232731/">"Rain Indoor Cabin (loop)"</a> by PhilllChabbb licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>
+                <br />
+                <a href="https://freesound.org/people/SkyernAklea/sounds/436536/">"Creaks >> CREAKING DOOR 02"</a> by SkyernAklea licensed under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>
+                <br />
+                <a href="https://freesound.org/people/harrietniamh/sounds/219677/">"Wooden Chair Move.mp3"</a> by harrietniamh licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>, clipped
+                <br />
+                <a href="https://freesound.org/people/MrFossy/sounds/347865/">"Cinematic Drones >> Risset Horror.wav"</a> by MrFossy licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>
+                <br />
+                <a href="https://freesound.org/people/mikala_oidua/sounds/347562/">"Weather >> Distant Thunder Clap_Gentle.wav"</a> by mikala_oidua licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>
+                <br />
+                <a href="https://freesound.org/people/MastersDisaster/sounds/218115/">"Switches >> Switch ON - Livingroom.wav"</a> by MastersDisaster licensed under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>
+            </div>
+
+            <div id="model-credits">
+                <h3>3D models</h3>
+                <a href="https://opengameart.org/content/fps-arms-rigged-only">"FPS arms"</a> by para is licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>
+                <br />
+                <a href="https://www.turbosquid.com/3d-models/male-zombie-3d-model/525226">"Low Polygon Zombie 1"</a> by DarkLight
+
+                <h3>Textures</h3>
+                "WoodPlanks-0668.jpg" from <a href="https://texture.ninja/">texture.ninja</a> licensed under CC0
+            </div>
+        </div>
+
+        <div id="show-credits">
+            <a href="#">CREDITS</a>
+        </div>
+    </body>
+</html>
+<script defer src="https://static.itch.io/htmlgame.js" type="text/javascript"></script>
